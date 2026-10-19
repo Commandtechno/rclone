@@ -10,6 +10,7 @@ import (
 	"fmt"
 	"io"
 	"path"
+	"strings"
 	"sync"
 	"sync/atomic"
 	"time"
@@ -197,6 +198,7 @@ func NewFs(ctx context.Context, name, root string, m configmap.Mapper) (fs.Fs, e
 		return nil, fmt.Errorf("connect to database: %w", err)
 	}
 
+	root = strings.Trim(root, "/")
 	client := fshttp.NewClient(ctx)
 	f := &Fs{
 		name:        name,

@@ -81,6 +81,9 @@ func (f *Fs) findDirID(ctx context.Context, parentID, name string) (id string, f
 }
 
 func (f *Fs) insertDir(ctx context.Context, parentID, name string) (id string, err error) {
+	if name == "" {
+		return "", errors.New("refusing to create a directory with an empty name")
+	}
 	id = uuid.NewString()
 	_, err = f.db.Exec(ctx, `insert into directories (id, parent_id, name, created_at, encrypted)
 		values ($1, $2, $3, $4, false)`, id, parentID, name, time.Now())
