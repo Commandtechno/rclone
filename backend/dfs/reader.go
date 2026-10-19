@@ -7,6 +7,7 @@ import (
 	"encoding/binary"
 	"fmt"
 	"io"
+	"math"
 	"strconv"
 	"strings"
 )
@@ -16,11 +17,12 @@ const legacyChunkCutoff = 1329698388786151456
 
 const legacyChunkSize = 25 * 1024 * 1024
 
-// Chunks uploaded at or after this attachment snowflake are 20 MiB. 0 until
-// fsexp switches over; set it to the same id as fsexp's CHUNK_20MB_CUTOVER.
-const chunk20Cutover = 0
+// Chunks uploaded before this attachment snowflake are 10 MiB, and everything
+// after is chunkSize (20 MiB). Same id as fsexp's CHUNK_10MB_BEFORE.
+// TODO: set to the cutover attachment id; until then everything reads as 10 MiB
+const chunk10Before = math.MaxUint64
 
-const chunk20Size = 20 * 1024 * 1024
+const chunk10Size = 10 * 1024 * 1024
 
 // storedChunkSize works out the chunk size o was uploaded with
 func (o *Object) storedChunkSize() (int64, error) {
@@ -29,15 +31,14 @@ func (o *Object) storedChunkSize() (int64, error) {
 		return max(o.size, 1), nil
 	}
 
-	// 20 MiB chunks only exist after the cutover, so earlier files never consider them
-	candidates := []int64{chunkSize, legacyChunkSize}
+	candidates := []int64{chunkSize, chunk10Size, legacyChunkSize}
 	_, attachmentID, _ := strings.Cut(o.chunks[0], "/")
 	if id, err := strconv.ParseUint(attachmentID, 10, 64); err == nil {
 		switch {
 		case id < legacyChunkCutoff:
-			candidates = []int64{legacyChunkSize, chunkSize}
-		case chunk20Cutover != 0 && id >= chunk20Cutover:
-			candidates = []int64{chunk20Size, chunkSize, legacyChunkSize}
+			candidates = []int64{legacyChunkSize, chunk10Size, chunkSize}
+		case id < chunk10Before:
+			candidates = []int64{chunk10Size, legacyChunkSize, chunkSize}
 		}
 	}
 	for _, cs := range candidates {

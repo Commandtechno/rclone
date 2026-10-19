@@ -17,19 +17,10 @@ import (
 
 const attachmentsPerMessage = 10
 
-// chunkSize is what fsexp uploaded with between the 25 MiB and 20 MiB eras.
-// Readers work out the chunk size of a file from its size and chunk count,
-// which is only unambiguous with the sizes the tools have always used. A var
-// so tests can shrink it.
-var chunkSize int64 = 10 * 1024 * 1024
-
-// uploadChunkSize is what fsexp uploads with now
-func uploadChunkSize() int64 {
-	if chunk20Cutover != 0 {
-		return chunk20Size
-	}
-	return chunkSize
-}
+// chunkSize is what fsexp uploads with. Readers work out the chunk size
+// of a file from its size and chunk count, which is only unambiguous
+// with the sizes the tools have always used. A var so tests can shrink it.
+var chunkSize int64 = 20 * 1024 * 1024
 
 // uploadResult collects chunk references as uploads finish
 type uploadResult struct {
@@ -81,15 +72,15 @@ func (f *Fs) uploadChunks(ctx context.Context, in io.Reader, size int64, key []b
 			// work out the batch's chunk sizes up front if we can, so one
 			// request gets upload slots for all of them
 			var sizes []int64
-			batchBytes := attachmentsPerMessage * uploadChunkSize()
+			batchBytes := attachmentsPerMessage * chunkSize
 			if size >= 0 {
 				batchBytes = 0
 				for j := range attachmentsPerMessage {
-					start := int64(idx+j) * uploadChunkSize()
+					start := int64(idx+j) * chunkSize
 					if start >= size {
 						break
 					}
-					sizes = append(sizes, min(size-start, uploadChunkSize()))
+					sizes = append(sizes, min(size-start, chunkSize))
 					batchBytes += sizes[j]
 				}
 			}
@@ -123,7 +114,7 @@ func (f *Fs) uploadChunks(ctx context.Context, in io.Reader, size int64, key []b
 					return gCtx.Err()
 				}
 
-				buf := make([]byte, uploadChunkSize())
+				buf := make([]byte, chunkSize)
 				n, err := io.ReadFull(br, buf)
 				if errors.Is(err, io.EOF) || errors.Is(err, io.ErrUnexpectedEOF) {
 					eof = true
