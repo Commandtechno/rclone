@@ -189,8 +189,8 @@ func NewFs(ctx context.Context, name, root string, m configmap.Mapper) (fs.Fs, e
 	if opt.DownloadConcurrency < 1 {
 		opt.DownloadConcurrency = 1
 	}
-	if int64(opt.ThreadSize) < chunkSize*attachmentsPerMessage {
-		return nil, fmt.Errorf("thread_size must be at least %v", fs.SizeSuffix(chunkSize*attachmentsPerMessage))
+	if int64(opt.ThreadSize) < uploadChunkSize()*attachmentsPerMessage {
+		return nil, fmt.Errorf("thread_size must be at least %v", fs.SizeSuffix(uploadChunkSize()*attachmentsPerMessage))
 	}
 
 	db, err := pgxpool.New(ctx, opt.DatabaseURL)
