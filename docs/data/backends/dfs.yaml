@@ -1,0 +1,28 @@
+backend: dfs
+name: dfs
+tier: Tier 5
+maintainers: External
+features_score: 3
+integration_tests: Passing
+data_integrity: Other
+performance: Medium
+adoption: Rarely used
+docs: Full
+security: Medium
+virtual: false
+remote: 'TestDFS:'
+features:
+- About
+- CanHaveEmptyDirectories
+- Copy
+- DirCacheFlush
+- DirMove
+- DuplicateFiles
+- Move
+- Purge
+- PutStream
+- ReadMimeType
+- Shutdown
+- WriteMimeType
+hashes: []
+precision: 1000
