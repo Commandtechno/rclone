@@ -20,7 +20,7 @@ const attachmentsPerMessage = 10
 // chunkSize is what fsexp uploads with. Readers work out the chunk size
 // of a file from its size and chunk count, which is only unambiguous
 // with the sizes the tools have always used. A var so tests can shrink it.
-var chunkSize int64 = 10 * 1024 * 1024
+var chunkSize int64 = 20 * 1024 * 1024
 
 // uploadResult collects chunk references as uploads finish
 type uploadResult struct {
