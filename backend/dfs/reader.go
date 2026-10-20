@@ -7,7 +7,6 @@ import (
 	"encoding/binary"
 	"fmt"
 	"io"
-	"math"
 	"strconv"
 	"strings"
 )
@@ -19,8 +18,7 @@ const legacyChunkSize = 25 * 1024 * 1024
 
 // Chunks uploaded before this attachment snowflake are 10 MiB, and everything
 // after is chunkSize (20 MiB). Same id as fsexp's CHUNK_10MB_BEFORE.
-// TODO: set to the cutover attachment id; until then everything reads as 10 MiB
-const chunk10Before = math.MaxUint64
+const chunk10Before = 1562038535178027069
 
 const chunk10Size = 10 * 1024 * 1024
 

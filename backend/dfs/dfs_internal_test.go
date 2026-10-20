@@ -113,7 +113,7 @@ func checkReads(t *testing.T, o fs.Object, want []byte) {
 
 func TestStoredChunkSize(t *testing.T) {
 	const MiB = 1024 * 1024
-	legacy, current := "1/1000000000000000000", "1/1500000000000000000"
+	legacy, current, next := "1/1000000000000000000", "1/1500000000000000000", "1/1600000000000000000"
 	for _, test := range []struct {
 		size   int64
 		chunks []string
@@ -126,6 +126,8 @@ func TestStoredChunkSize(t *testing.T) {
 		{size: 30 * MiB, chunks: []string{current, current}, want: 25 * MiB},
 		{size: 50 * MiB, chunks: []string{legacy, legacy, legacy, legacy, legacy}, want: 10 * MiB},
 		{size: 100 * MiB, chunks: []string{current, current}, want: 0},
+		{size: 30 * MiB, chunks: []string{next, next}, want: 20 * MiB},
+		{size: 30 * MiB, chunks: []string{next, next, next}, want: 10 * MiB},
 	} {
 		o := &Object{size: test.size, chunks: test.chunks}
 		got, err := o.storedChunkSize()
